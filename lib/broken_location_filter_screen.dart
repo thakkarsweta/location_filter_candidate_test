@@ -86,28 +86,7 @@ class _BrokenLocationFilterScreenState extends State<BrokenLocationFilterScreen>
         status = 'Location permission permanently denied.';
       });
 
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Permission Required'),
-          content: const Text(
-            'Location permission is permanently denied. Please enable it from app settings.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                await Geolocator.openAppSettings();
-              },
-              child: const Text('Open Settings'),
-            ),
-          ],
-        ),
-      );
+      await _showLocationPermissionDialog();
       return;
     }
 
@@ -224,4 +203,31 @@ class _BrokenLocationFilterScreenState extends State<BrokenLocationFilterScreen>
       ),
     );
   }
+
+  Future<void> _showLocationPermissionDialog() async {
+  await showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Permission Required'),
+      content: const Text(
+        'Location permission is permanently denied. Please enable it from app settings.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () async {
+            Navigator.of(context).pop();
+            await Geolocator.openAppSettings();
+          },
+          child: const Text('Open Settings'),
+        ),
+      ],
+    ),
+  );
 }
+}
+
+
