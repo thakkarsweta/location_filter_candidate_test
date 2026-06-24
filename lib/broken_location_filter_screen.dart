@@ -40,27 +40,80 @@ class _BrokenLocationFilterScreenState extends State<BrokenLocationFilterScreen>
 
   // Known-broken method. Candidate should fix this safely.
   Future<void> useCurrentLocation() async {
+    //FIXED BUG 5: no mounted checks after async work before setState/showDialog.
+    if (!mounted) return;
     setState(() {
       isLocating = true;
       status = 'Checking location permission...';
     });
 
-    LocationPermission permission = await Geolocator.checkPermission();
-
-    // BUG 1: If permission is denied, this code does not request permission.
-    // BUG 2: denied and deniedForever are treated the same.
-    // BUG 3: isLocating is not reset on every early return path.
-    // BUG 4: no service-enabled check.
-    // BUG 5: no mounted checks after async work before setState/showDialog.
-    if (permission == LocationPermission.denied || permission == LocationPermission.deniedForever) {
+    //FIXED BUG 4: no service-enabled check.
+    final serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      if (!mounted) return;
       setState(() {
-        status = 'Location denied. Nothing else happens.';
+        isLocating = false;
+        status = 'Location services are disabled.';
       });
       return;
     }
 
-    final position = await Geolocator.getCurrentPosition();
+    LocationPermission permission = await Geolocator.checkPermission();
 
+    //FIXED BUG 2: denied and deniedForever are treated the same.
+    if (permission == LocationPermission.denied) {
+      //FIXED BUG 1: If permission is denied, this code does not request permission.
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        //FIXED BUG 5: no mounted checks after async work before setState/showDialog.
+        if (!mounted) return;
+        setState(() {
+          //FIXED BUG 3: isLocating is not reset on every early return path.
+          isLocating = false;
+          status = 'Location permission denied.';
+        });
+        return;
+      }
+    }
+
+    //FIXED BUG 2: denied and deniedForever are treated the same.
+    if (permission == LocationPermission.deniedForever) {
+      //FIXED BUG 5: no mounted checks after async work before setState/showDialog.
+      if (!mounted) return;
+      setState(() {
+        //FIXED BUG 3: isLocating is not reset on every early return path.
+        isLocating = false;
+        status = 'Location permission permanently denied.';
+      });
+
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text(
+            'Location permission is permanently denied. Please enable it from app settings.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await Geolocator.openAppSettings();
+              },
+              child: const Text('Open Settings'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    final position = await Geolocator.getCurrentPosition();
+    //FIXED BUG 5: no mounted checks after async work before setState/showDialog.
+    if (!mounted) return;
     setState(() {
       useMyLocation = true;
       status = 'Location loaded: ${position.latitude.toStringAsFixed(3)}, ${position.longitude.toStringAsFixed(3)}';
@@ -78,14 +131,14 @@ class _BrokenLocationFilterScreenState extends State<BrokenLocationFilterScreen>
 
     if (verifiedOnly) {
       final verified = list.where((b) => b.blackOwnedVerified).toList();
-      // BUG 6: bad fallback. If there are no verified results, it shows all results again.
-      list = verified.isNotEmpty ? verified : demoBusinesses;
+      //FIXED BUG 6: bad fallback. If there are no verified results, it shows all results again.
+      list = verified;
     }
 
     if (useMyLocation) {
       final nearby = list.where((b) => b.distanceMiles <= maxDistanceMiles).toList();
-      // BUG 7: bad fallback. If there are no nearby results, it shows all results again.
-      list = nearby.isNotEmpty ? nearby : demoBusinesses;
+      //FIXED BUG 7: bad fallback. If there are no nearby results, it shows all results again.
+      list = nearby;
     }
 
     return list;
