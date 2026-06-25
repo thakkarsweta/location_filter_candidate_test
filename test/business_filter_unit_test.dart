@@ -2,7 +2,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:location_filter_candidate_test/broken_location_filter_screen.dart';
-
+import 'package:flutter/foundation.dart';
 import 'business_filter_unit_test_helper.dart';
 
 void main() {
@@ -10,26 +10,26 @@ void main() {
     String testCase,
     List<Business> businesses,
   ) {
-    print('\n====================================================');
-    print('TEST CASE: $testCase');
-    print('Result Count: ${businesses.length}');
+    debugPrint('\n====================================================');
+    debugPrint('TEST CASE: $testCase');
+    debugPrint('Result Count: ${businesses.length}');
 
     if (businesses.isEmpty) {
-      print('Businesses: NONE');
+      debugPrint('Businesses: NONE');
     } else {
-      print(
+      debugPrint(
         'Businesses: ${businesses.map((e) => e.name).join(', ')}',
       );
     }
 
-    print('====================================================\n');
+    debugPrint('====================================================\n');
   }
 
   group('BusinessFilterHelper Tests', () {
     test(
       'TC-01: returns all restaurant businesses when category is Restaurant',
       () {
-        print('Running TC-01');
+        debugPrint('Running TC-01');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -50,14 +50,14 @@ void main() {
           isTrue,
         );
 
-        print('TC-01 PASSED');
+        debugPrint('TC-01 PASSED');
       },
     );
 
     test(
       'TC-02: returns empty list for Services + Verified Only',
       () {
-        print('Running TC-02');
+        debugPrint('Running TC-02');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -71,14 +71,14 @@ void main() {
 
         expect(result, isEmpty);
 
-        print('TC-02 PASSED');
+        debugPrint('TC-02 PASSED');
       },
     );
 
     test(
       'TC-03: returns Brooklyn Books for Retail + Verified Only',
       () {
-        print('Running TC-03');
+        debugPrint('Running TC-03');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -93,14 +93,14 @@ void main() {
         expect(result.length, 1);
         expect(result.first.name, 'Brooklyn Books');
 
-        print('TC-03 PASSED');
+        debugPrint('TC-03 PASSED');
       },
     );
 
     test(
       'TC-04: returns Harlem Coffee Bar for Restaurant + Verified + Distance <= 1 mile',
       () {
-        print('Running TC-04');
+        debugPrint('Running TC-04');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -115,14 +115,14 @@ void main() {
         expect(result.length, 1);
         expect(result.first.name, 'Harlem Coffee Bar');
 
-        print('TC-04 PASSED');
+        debugPrint('TC-04 PASSED');
       },
     );
 
     test(
       'TC-05: returns empty list when verified filter has no matches',
       () {
-        print('Running TC-05');
+        debugPrint('Running TC-05');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -136,14 +136,14 @@ void main() {
 
         expect(result, isEmpty);
 
-        print('TC-05 PASSED');
+        debugPrint('TC-05 PASSED');
       },
     );
 
     test(
       'TC-06: returns empty list when distance filter has no matches',
       () {
-        print('Running TC-06');
+        debugPrint('Running TC-06');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -157,14 +157,14 @@ void main() {
 
         expect(result, isEmpty);
 
-        print('TC-06 PASSED');
+        debugPrint('TC-06 PASSED');
       },
     );
 
     test(
       'TC-07: combined filters do not reset previously applied filters',
       () {
-        print('Running TC-07');
+        debugPrint('Running TC-07');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -178,14 +178,14 @@ void main() {
 
         expect(result, isEmpty);
 
-        print('TC-07 PASSED');
+        debugPrint('TC-07 PASSED');
       },
     );
 
     test(
       'TC-08: returns all businesses when no filters are applied',
       () {
-        print('Running TC-08');
+        debugPrint('Running TC-08');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -202,14 +202,14 @@ void main() {
           demoBusinesses.length,
         );
 
-        print('TC-08 PASSED');
+        debugPrint('TC-08 PASSED');
       },
     );
 
     test(
       'TC-09: verified only filter returns only verified businesses',
       () {
-        print('Running TC-09');
+        debugPrint('Running TC-09');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -228,14 +228,14 @@ void main() {
           isTrue,
         );
 
-        print('TC-09 PASSED');
+        debugPrint('TC-09 PASSED');
       },
     );
 
     test(
       'TC-10: distance filter returns only businesses within selected range',
       () {
-        print('Running TC-10');
+        debugPrint('Running TC-10');
 
         final result = BusinessFilterUnitTestHelper.apply(
           businesses: demoBusinesses,
@@ -254,7 +254,7 @@ void main() {
           isTrue,
         );
 
-        print('TC-10 PASSED');
+        debugPrint('TC-10 PASSED');
       },
     );
   });
